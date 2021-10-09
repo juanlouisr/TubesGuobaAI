@@ -1,8 +1,77 @@
 import pickle
+import copy
 from typing import Tuple
 
 from src.model import Piece, Board, State
 from src.constant import ShapeConstant, GameConstant
+
+def katsu_pointo(board: Board):
+    val = 0
+    for row in range(board.row):
+        for col in range(board.col):
+            val += piece_point(board, row, col)    
+    return val
+
+def piece_point(board: Board, row: int, col: int):
+    piece = board[row, col]
+    if piece.shape == ShapeConstant.BLANK:
+        return 0
+
+    streak_way = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+    val = 0
+    for prior in GameConstant.WIN_PRIOR:
+        mark = 0
+        for row_ax, col_ax in streak_way:
+            row_ = row + row_ax
+            col_ = col + col_ax
+            for _ in range(GameConstant.N_COMPONENT_STREAK - 1):
+                if is_out(board, row_, col_):
+                    mark = 0
+                    break
+
+                shape_condition = (
+                    prior == GameConstant.SHAPE
+                    and piece.shape != board[row_, col_].shape
+                )
+                color_condition = (
+                    prior == GameConstant.COLOR
+                    and piece.color != board[row_, col_].color
+                )
+                if shape_condition or color_condition:
+                    mark = 0
+                    break
+
+                row_ += row_ax
+                col_ += col_ax
+                mark += 1
+
+            if (prior == GameConstant.SHAPE):
+                if (piece.shape == GameConstant.PLAYER1_SHAPE):
+                    val += mark
+                else:
+                    val -= mark
+            else:
+                if (piece.color == GameConstant.PLAYER1_COLOR):
+                    val += mark
+                else:
+                    val -= mark
+
+            if mark == GameConstant.N_COMPONENT_STREAK - 1:
+                player_set = [
+                    (GameConstant.PLAYER1_SHAPE, GameConstant.PLAYER1_COLOR),
+                    (GameConstant.PLAYER2_SHAPE, GameConstant.PLAYER2_COLOR),
+                ]
+                for player in player_set:
+                    if prior == GameConstant.SHAPE:
+                        if piece.shape == player[0]:
+                            val += 100
+                            
+                    elif prior == GameConstant.COLOR:
+                        if piece.color == player[1]:
+                            val -= 100
+
+    return val
+                    
 
 
 def dump(obj, path):
@@ -52,7 +121,7 @@ def check_streak(board: Board, row: int, col: int) -> Tuple[str, str, str]:
     [DESC]
         Function to check streak from row, col in current board
     [PARAMS]
-        board: Board -> current board
+        board: Board -> current boardr
         row: int -> row
         col: int -> column
     [RETURN]

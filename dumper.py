@@ -1,11 +1,13 @@
-from src.ai import Minimax
+# from src import LocalSearch
+from src.ai import Minimax, LocalSearch
 from src.constant import Path
 from src.utility import dump
 
 def dumper(path_b1, path_b2, path_pvb):
     model = Minimax()
+    model2 = LocalSearch()
     dump(model, Path.BVB_P1.format(path_b1))
-    dump(model, Path.BVB_P2.format(path_b2))
+    dump(model2, Path.BVB_P2.format(path_b2))
     dump(model, Path.PVB.format(path_pvb))
 
 if __name__ == '__main__':
