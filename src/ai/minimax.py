@@ -18,35 +18,62 @@ class Minimax:
     def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
         self.thinking_time = time() + thinking_time
         
-        stateCopy = copy.deepcopy(state)
-        moves = []
-        self.miniMaxVal(stateCopy, 3, float('-inf'), float('inf'), n_player, moves)
-
         randomMove = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
-        best_movement = moves[0] if len(moves) != 0 else randomMove
+        best_movement = randomMove
+
+        if n_player == 0:
+            bestVal = float('-inf')
+        else:
+            bestVal = float('inf')
+        shapes = [ShapeConstant.CIRCLE, ShapeConstant.CROSS]
+        for shape in shapes:
+            for i in range(state.board.col):
+                stateCopy = copy.deepcopy(state)
+                if place(stateCopy, 0, shape, i) == -1:
+                    continue
+                currMove = (i,shape)
+                value = self.miniMaxVal(stateCopy, 2, float('-inf'), float('inf'), (n_player + 1) % 2)
+                check = (value > bestVal) if (n_player == 0) else (value < bestVal)
+                if check:
+                    bestVal = value
+                    best_movement = currMove
+
         return best_movement
 
 
-    def miniMaxVal(self, state: State, depth: int, alpha, beta, player: int, moves: list):
-        if depth == 0 or is_win(state.board):
-            return katsu_pointo(state.board)
-        # place(state: State, n_player: int, shape: str, col: str) -> int:
+    def miniMaxVal(self, state: State, depth: int, alpha, beta, player: int):
+        winner = is_win(state.board)
+        if depth == 0 or winner:
+            value = 0
+            if winner:
+                for i, player in enumerate(state.players):
+                    if winner[0] == player.shape and winner[1] == player.color:
+                        if i == 0:
+                            value = 100
+                        if i == 1:
+                            value = -100
+                        break
+            return value
+
 
         if player == 0:
             bestVal = float('-inf')
             shapes = [ShapeConstant.CIRCLE, ShapeConstant.CROSS]
             for shape in shapes:
                 for i in range(state.board.col):
+                    if time() > self.thinking_time:
+                        break
                     stateCopy = copy.deepcopy(state)
                     if place(stateCopy, 0, shape, i) == -1:
                         continue
-                    currMove = (i,shape)
-                    moves.append(currMove)
-                    value = self.miniMaxVal(stateCopy, depth-1, alpha, beta, 1, moves)
+                    value = self.miniMaxVal(stateCopy, depth-1, alpha, beta, 1)
                     bestVal = max( bestVal, value)
                     alpha = max( alpha, value)
                     if beta<= alpha :
                         break
+                else:
+                    continue
+                break
             return bestVal
 
         else :
@@ -54,38 +81,18 @@ class Minimax:
             shapes = [ShapeConstant.CROSS, ShapeConstant.CIRCLE]
             for shape in shapes:
                 for i in range(state.board.col):
+                    if time() > self.thinking_time:
+                        break
                     stateCopy = copy.deepcopy(state)
                     if place(stateCopy, 1, shape, i) == -1:
                         continue
-                    currMove = (i,shape)
-                    moves.append(currMove)
-                    value = self.miniMaxVal(stateCopy, depth-1, alpha, beta, 0, moves)
+                    value = self.miniMaxVal(stateCopy, depth-1, alpha, beta, 0)
                     bestVal = min(bestVal, value)
                     beta = min(beta, value)
                     if beta <= alpha :
                         break
+                else:
+                    continue
+                break
             return bestVal
-    # function minimax(state, depth, alpha, beta, isMaximizingPlayer):
-    # if current board state is a terminal state :
-    #     return value of the board
-    
-    # if player == 0 :
-    #     bestVal = -INFINITY
-    #     for each move in board :
-    #         value = minimax(move, depth-1, alpha, beta, 1)
-    #         bestVal = max( bestVal, value) 
-    #         alpha = max( alpha, value)
-    #         if beta<= alpha :
-    #             break 
-    #     return bestVal
-
-    # else :
-    #     bestVal = +INFINITY 
-    #     for each move in board :
-    #         value = minimax(move, depth-1, alpha, beta, 0)
-    #         bestVal = min( bestVal, value) 
-    #         beta = min( beta, value)
-    #         if beta<= alpha :
-    #             break
-    #     return bestVal
 
