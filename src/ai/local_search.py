@@ -1,7 +1,8 @@
 import random
+import copy
 from time import time
 
-from src.constant import ShapeConstant, GameConstant
+from src.constant import ShapeConstant
 from src.model import State
 from src.utility import is_out, is_win, is_full, place
 
@@ -9,31 +10,35 @@ from typing import Tuple, List
 
 
 class LocalSearch:
-    def __init__(self):
-        pass
+	def __init__(self):
+		pass
 
-    def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
-        self.thinking_time = time() + thinking_time
+	def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
+		self.thinking_time = time() + thinking_time
+		random_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
+		best_movement = random_movement
 		
-		random_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
-        best_movement = random_movement
-		
-		x = hillclimbing(state)
-		y = 
+		x = hillclimbing(state, n_player)
+		y = state.players[n_player].shape
+
 		choosed_move = [x, y]
+		best_movement = choosed_move
+		
+		return best_movement
 
-        return best_movement
-
-
-    def hillclimbing(state: State):
+	def hillclimbing(state: State):
 		current_value = 0
 		neighbor_value = 0
 		choosed_col = 0
-		for col in range(0, state.board.col) :
+		
+		for col in range(state.board.col) :
 			for row in range(state.board.row - 1, -1, -1):
 					if state.board[row, col].shape == ShapeConstant.BLANK:
-						neighbor_value = check_value(state.board, row, col)
+						stateCopy = copy.deepcopy(state)
+						place(stateCopy, n_player, statecopy.players[n_player].shape, col)
+						neighbor_value = check_value(stateCopy.board, row, col)
 						break
+						
 			if neighbor_value >= current_value:
 				current_value = neighbor_value
 				choosed_col = col
@@ -48,8 +53,8 @@ class LocalSearch:
 		current_value = 0
 		
 		for prior in GameConstant.WIN_PRIOR:
-			value = 0
 			for row_ax, col_ax in streak_way:
+				value = 0
 				row_ = row + row_ax
 				col_ = col + col_ax
 				for _ in range(GameConstant.N_COMPONENT_STREAK - 1):
@@ -77,6 +82,7 @@ class LocalSearch:
 					
 				row_ = row - row_ax
 				col_ = col - col_ax
+				
 				for _ in range(GameConstant.N_COMPONENT_STREAK - 1):
 					if is_out(board, row_, col_):
 						if current_value < value :
@@ -102,4 +108,5 @@ class LocalSearch:
 					row_ -= row_ax
 					col_ -= col_ax
 					value += 1
-		return value
+		
+		return current_value
