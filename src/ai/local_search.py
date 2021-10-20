@@ -9,7 +9,6 @@ from src.utility import is_out, is_win, is_full, place
 from typing import Tuple, List
 
 
-<<<<<<< HEAD
 class LocalSearchGroup33:
 	def __init__(self):
 		pass
@@ -23,30 +22,12 @@ class LocalSearchGroup33:
 		if state.players[n_player].quota[y] == 0:
 			y = ShapeConstant.CROSS if (n_player == 0) else ShapeConstant.CIRCLE
 		x = self.hillclimbing(state, n_player, y)
-=======
-class LocalSearch:
-    def __init__(self):
-        pass
-
-    def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
-        self.thinking_time = time() + thinking_time
-		
-		random_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
-        best_movement = random_movement
->>>>>>> 9a3b0881e0ce2d25e22454db79e4fe8e08787260
 		
 
 		choosed_move = (x, y)
 		best_movement = choosed_move
 
-<<<<<<< HEAD
 	def hillclimbing(self, state: State, n_player: int, shape) -> int:
-=======
-        return best_movement
-
-
-    def hillclimbing(state: State, n_player: int):
->>>>>>> 9a3b0881e0ce2d25e22454db79e4fe8e08787260
 		current_value = 0
 		neighbor_value = 0
 		choosed_col = 0
