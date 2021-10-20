@@ -26,6 +26,7 @@ class LocalSearchGroup33:
 
 		choosed_move = (x, y)
 		best_movement = choosed_move
+		return best_movement
 
 	def hillclimbing(self, state: State, n_player: int, shape) -> int:
 		current_value = 0
