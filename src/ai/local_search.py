@@ -2,14 +2,14 @@ import random
 import copy
 from time import time
 
-from src.constant import ShapeConstant
-from src.model import State
+from src.constant import ShapeConstant, GameConstant
+from src.model import State, Piece, Board
 from src.utility import is_out, is_win, is_full, place
 
 from typing import Tuple, List
 
 
-class LocalSearch:
+class LocalSearchGroup33:
 	def __init__(self):
 		pass
 
@@ -17,34 +17,37 @@ class LocalSearch:
 		self.thinking_time = time() + thinking_time
 		random_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
 		best_movement = random_movement
-		
-		x = hillclimbing(state, n_player)
-		y = state.players[n_player].shape
 
-		choosed_move = [x, y]
+		y = ShapeConstant.CIRCLE if (n_player == 0) else ShapeConstant.CROSS
+		if state.players[n_player].quota[y] == 0:
+			y = ShapeConstant.CROSS if (n_player == 0) else ShapeConstant.CIRCLE
+		x = self.hillclimbing(state, n_player, y)
+		
+
+		choosed_move = (x, y)
 		best_movement = choosed_move
 		
 		return best_movement
 
-	def hillclimbing(state: State):
+	def hillclimbing(self, state: State, n_player: int, shape) -> int:
 		current_value = 0
 		neighbor_value = 0
 		choosed_col = 0
 		
 		for col in range(state.board.col) :
-			for row in range(state.board.row - 1, -1, -1):
-					if state.board[row, col].shape == ShapeConstant.BLANK:
-						stateCopy = copy.deepcopy(state)
-						place(stateCopy, n_player, statecopy.players[n_player].shape, col)
-						neighbor_value = check_value(stateCopy.board, row, col)
-						break
-						
+			stateCopy = copy.deepcopy(state)
+			row = place(stateCopy, n_player, shape, col)
+			if row == -1:
+				continue
+			neighbor_value = self.check_value(stateCopy.board, row, col)
 			if neighbor_value >= current_value:
 				current_value = neighbor_value
 				choosed_col = col
-		return col
+			break
+
+		return choosed_col
 	
-	def check_value(board: Board, row: int, col: int):
+	def check_value(self, board: Board, row: int, col: int):
 		piece = board[row, col]
 		if piece.shape == ShapeConstant.BLANK:
 			return None
@@ -102,7 +105,7 @@ class LocalSearch:
 							current_value = value
 						break
 						
-					if value = 3:
+					if value == 3:
 						break
 						
 					row_ -= row_ax
