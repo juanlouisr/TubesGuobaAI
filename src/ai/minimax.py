@@ -11,7 +11,7 @@ from typing import Tuple, List
 from src.utility import is_win,katsu_pointo,place
 
 
-class Minimax:
+class MinimaxGroup33:
     def __init__(self):
         pass
 
@@ -23,9 +23,12 @@ class Minimax:
 
         if n_player == 0:
             bestVal = float('-inf')
+            shapes = [ShapeConstant.CIRCLE, ShapeConstant.CROSS]
+
         else:
             bestVal = float('inf')
-        shapes = [ShapeConstant.CIRCLE, ShapeConstant.CROSS]
+            shapes = [ShapeConstant.CROSS, ShapeConstant.CIRCLE]
+            
         for shape in shapes:
             for i in range(state.board.col):
                 stateCopy = copy.deepcopy(state)
