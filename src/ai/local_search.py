@@ -41,8 +41,7 @@ class LocalSearchGroup33:
 			if neighbor_value >= current_value:
 				current_value = neighbor_value
 				choosed_col = col
-			break
-
+				
 		return choosed_col
 	
 	def check_value(self, board: Board, row: int, col: int):
