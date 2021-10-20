@@ -10,27 +10,28 @@ from typing import Tuple, List
 
 
 class LocalSearch:
-	def __init__(self):
-		pass
+    def __init__(self):
+        pass
 
-	def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
-		self.thinking_time = time() + thinking_time
-		random_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE]))
-		best_movement = random_movement
+    def find(self, state: State, n_player: int, thinking_time: float) -> Tuple[str, str]:
+        self.thinking_time = time() + thinking_time
+		
+		random_movement = (random.randint(0, state.board.col), random.choice([ShapeConstant.CROSS, ShapeConstant.CIRCLE])) #minimax algorithm
+        best_movement = random_movement
 		
 		x = hillclimbing(state, n_player)
 		y = state.players[n_player].shape
 
 		choosed_move = [x, y]
 		best_movement = choosed_move
-		
-		return best_movement
 
-	def hillclimbing(state: State):
+        return best_movement
+
+
+    def hillclimbing(state: State, n_player: int):
 		current_value = 0
 		neighbor_value = 0
 		choosed_col = 0
-		
 		for col in range(state.board.col) :
 			for row in range(state.board.row - 1, -1, -1):
 					if state.board[row, col].shape == ShapeConstant.BLANK:
@@ -82,7 +83,6 @@ class LocalSearch:
 					
 				row_ = row - row_ax
 				col_ = col - col_ax
-				
 				for _ in range(GameConstant.N_COMPONENT_STREAK - 1):
 					if is_out(board, row_, col_):
 						if current_value < value :
@@ -102,11 +102,10 @@ class LocalSearch:
 							current_value = value
 						break
 						
-					if value = 3:
+					if value == 3:
 						break
 						
 					row_ -= row_ax
 					col_ -= col_ax
 					value += 1
-		
 		return current_value
