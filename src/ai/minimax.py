@@ -8,7 +8,7 @@ from src.model import State, Board
 
 from typing import Tuple, List
 
-from src.utility import is_win,katsu_pointo,place
+from src.utility import *
 
 
 class MinimaxGroup33:
@@ -46,8 +46,7 @@ class MinimaxGroup33:
 
     def miniMaxVal(self, state: State, depth: int, alpha, beta, player: int):
         winner = is_win(state.board)
-        if depth == 0 or winner:
-            value = 0
+        if depth == 0 or winner or time() > (self.thinking_time - 0.01):
             if winner:
                 for i, player in enumerate(state.players):
                     if winner[0] == player.shape and winner[1] == player.color:
@@ -56,6 +55,8 @@ class MinimaxGroup33:
                         if i == 1:
                             value = -100
                         break
+            else:
+                value = self.point_katsu(state.board)
             return value
 
 
@@ -63,11 +64,11 @@ class MinimaxGroup33:
             bestVal = float('-inf')
             shapes = [ShapeConstant.CIRCLE, ShapeConstant.CROSS]
             for shape in shapes:
-                if time() > self.thinking_time:
-                    break
+                # if time() > self.thinking_time:
+                #     break
                 for i in range(state.board.col):
-                    if time() > self.thinking_time:
-                        break
+                    # if time() > self.thinking_time:
+                    #     break
                     stateCopy = copy.deepcopy(state)
                     if place(stateCopy, 0, shape, i) == -1:
                         continue
@@ -83,11 +84,11 @@ class MinimaxGroup33:
             bestVal = float('inf')
             shapes = [ShapeConstant.CROSS, ShapeConstant.CIRCLE]
             for shape in shapes:
-                if time() > self.thinking_time:
-                    break
+                # if time() > self.thinking_time:
+                #     break
                 for i in range(state.board.col):
-                    if time() > self.thinking_time:
-                        break
+                    # if time() > self.thinking_time:
+                    #     break
                     stateCopy = copy.deepcopy(state)
                     if place(stateCopy, 1, shape, i) == -1:
                         continue
@@ -99,3 +100,41 @@ class MinimaxGroup33:
 
             return bestVal
 
+    def point_katsu(self, board: Board) -> int:
+        val = 0
+        for row in range(board.row):
+            for col in range(board.col):
+                piece = board[row, col]
+                if piece.shape == ShapeConstant.BLANK:
+                    break
+
+                streak_way = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+                
+                for prior in GameConstant.WIN_PRIOR:
+                    mark = 0
+                    for row_ax, col_ax in streak_way:
+                        row_ = row + row_ax
+                        col_ = col + col_ax
+                        for _ in range(GameConstant.N_COMPONENT_STREAK - 1):
+                            if is_out(board, row_, col_):
+                                val = max(mark, val)
+                                break
+
+                            shape_condition = (
+                                prior == GameConstant.SHAPE
+                                and piece.shape != board[row_, col_].shape
+                            )
+                            color_condition = (
+                                prior == GameConstant.COLOR
+                                and piece.color != board[row_, col_].color
+                            )
+                            if shape_condition or color_condition:
+                                val = max(mark,val)
+                                break
+
+                            row_ += row_ax
+                            col_ += col_ax
+                            mark += 1
+
+                        val = max(val, mark)
+        return val 
