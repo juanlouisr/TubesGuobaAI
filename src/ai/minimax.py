@@ -63,6 +63,8 @@ class MinimaxGroup33:
             bestVal = float('-inf')
             shapes = [ShapeConstant.CIRCLE, ShapeConstant.CROSS]
             for shape in shapes:
+                if time() > self.thinking_time:
+                    break
                 for i in range(state.board.col):
                     if time() > self.thinking_time:
                         break
@@ -74,15 +76,15 @@ class MinimaxGroup33:
                     alpha = max( alpha, value)
                     if beta<= alpha :
                         break
-                else:
-                    continue
-                break
+
             return bestVal
 
         else :
             bestVal = float('inf')
             shapes = [ShapeConstant.CROSS, ShapeConstant.CIRCLE]
             for shape in shapes:
+                if time() > self.thinking_time:
+                    break
                 for i in range(state.board.col):
                     if time() > self.thinking_time:
                         break
@@ -94,8 +96,6 @@ class MinimaxGroup33:
                     beta = min(beta, value)
                     if beta <= alpha :
                         break
-                else:
-                    continue
-                break
+
             return bestVal
 
